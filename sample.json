@@ -1,0 +1,6 @@
+{
+  "token": "your-digital-ocean-api-token-goes-here",
+  "domain": "your-domain.com",
+  "rec_id": "the-rec-id-for-the-record",
+  "checkip_url": "http://some-domain/ip.aspx"
+}
