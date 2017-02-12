@@ -4,6 +4,7 @@ import argparse
 import ipgetter
 import json
 import os
+import requests
 import sys
 import time
 
