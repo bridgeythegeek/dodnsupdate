@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 
 import argparse
+import ipgetter
 import json
 import os
-import re
-import requests
 import sys
 import time
 
@@ -30,7 +29,6 @@ class DoDNSUpdater:
                 self.token = j['token']
                 self.domain = j['domain']
                 self.rec_id = j['rec_id']
-                self.checkip_url = j['checkip_url']
             except Exception as e:
                 print prepare_output('Config Error: {}'.format(e))
                 sys.exit(1)
@@ -60,9 +58,15 @@ class DoDNSUpdater:
             return r.json()['domain_record']['data']
 
     def update(self):
+
+	external_ip = ipgetter.myip()
+
+	if not external_ip:
+		print prepare_output("Couldn't get external IP!")
+		sys.exit(1)
+
         existing_ip = self.get_existing_ip()
 
-        external_ip = get_external_ip(self.checkip_url)
         if external_ip == existing_ip:
             msg = 'IP is already up-to-date ({}).'.format(existing_ip)
         else:
@@ -70,27 +74,6 @@ class DoDNSUpdater:
 
         msg = self.update_info + ' ' + msg
         print prepare_output(msg)
-
-
-def get_external_ip(checkip_url):
-    """
-    Get the external IP address by querying a website.
-    :return: the IPv4 address
-    """
-
-    checkip_rx = '(?:\d{1,3}\.){3}\d{1,3}'
-
-    r = requests.get(checkip_url)
-    if 200 == r.status_code:
-        ext_ip = re.findall(checkip_rx, r.text)
-        if 1 == len(ext_ip):
-            return ext_ip[0]
-        else:
-            print prepare_output('Couldn\'t get external IP address (Not IP).')
-            sys.exit(1)
-    else:
-        print prepare_output('Couldn\'t get external IP address ({}).').format(r.status_code)
-        sys.exit(1)
 
 def prepare_output(str, with_crlf=False):
     """
